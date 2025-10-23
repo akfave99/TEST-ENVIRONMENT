@@ -30,8 +30,9 @@ def create_choropleth_html():
     main_locations = [COUNTRIES_ISO[c] for c in main_countries]
     main_z = [120000000, 90000000, 45000000, 70000000, 30000000]
     
-    # Neighboring countries (neutral gray styling)
+    # Neighboring countries (neutral gray styling) - expanded for geographic context
     neighboring_countries = {
+        # Direct neighbors
         'RUS': 'Russia',
         'CHN': 'China',
         'AFG': 'Afghanistan',
@@ -39,7 +40,30 @@ def create_choropleth_html():
         'TUR': 'Turkey',
         'ARM': 'Armenia',
         'KGZ': 'Kyrgyzstan',
-        'TJK': 'Tajikistan'
+        'TJK': 'Tajikistan',
+        # Extended context
+        'PAK': 'Pakistan',
+        'IND': 'India',
+        'MNG': 'Mongolia',
+        # European context
+        'ROU': 'Romania',
+        'BGR': 'Bulgaria',
+        'GRC': 'Greece',
+        'UKR': 'Ukraine',
+        'POL': 'Poland',
+        # Middle East context
+        'SYR': 'Syria',
+        'IRQ': 'Iraq',
+        'SAU': 'Saudi Arabia',
+        'ARE': 'UAE',
+        'OMN': 'Oman',
+        'QAT': 'Qatar',
+        'BHR': 'Bahrain',
+        'KWT': 'Kuwait',
+        'JOR': 'Jordan',
+        'ISR': 'Israel',
+        'PSE': 'Palestine',
+        'LBN': 'Lebanon',
     }
     
     fig = go.Figure()
