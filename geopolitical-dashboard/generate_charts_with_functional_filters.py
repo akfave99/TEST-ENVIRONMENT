@@ -368,27 +368,37 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             resetChoroplethHighlight();
         }};
         
-        // Add a catch-all listener to see what events are being fired
-        chartDiv.addEventListener('plotly_hover', window.chartHoverHandler);
-        chartDiv.addEventListener('plotly_unhover', window.chartUnhoverHandler);
-        
-        // Debug: Log all events on the chart div
-        const originalAddEventListener = chartDiv.addEventListener;
-        chartDiv.addEventListener = function(type, listener, options) {{
-            if (type.includes('plotly')) {{
-                console.log('📡 Event listener added for:', type);
+        // Poll the chart's internal hover state
+        let lastHoveredCountry = null;
+        window.hoverPollingInterval = setInterval(function() {{
+            try {{
+                const hoverText = chartDiv.querySelector('.hoverlayer text');
+                if (hoverText && hoverText.textContent) {{
+                    const hoverContent = hoverText.textContent;
+                    console.log('📍 Hover text detected:', hoverContent);
+                    let country = null;
+                    const countryNames = ['Kazakhstan', 'Uzbekistan', 'Turkmenistan', 'Azerbaijan', 'Georgia'];
+                    for (let c of countryNames) {{
+                        if (hoverContent.includes(c)) {{
+                            country = c;
+                            break;
+                        }}
+                    }}
+                    if (country && country !== lastHoveredCountry) {{
+                        console.log('✅ Country detected:', country);
+                        lastHoveredCountry = country;
+                        highlightCountryInChoropleth(country);
+                    }}
+                }} else if (lastHoveredCountry !== null) {{
+                    console.log('✅ Hover ended');
+                    lastHoveredCountry = null;
+                    resetChoroplethHighlight();
+                }}
+            }} catch (e) {{
+                // Silently ignore errors
             }}
-            return originalAddEventListener.call(this, type, listener, options);
-        }};
-        
-        // Try using Plotly's d3 if available
-        if (typeof Plotly !== 'undefined' && Plotly.d3) {{
-            console.log('✅ Plotly.d3 is available');
-            Plotly.d3.select(chartDiv).on('plotly_hover', window.chartHoverHandler);
-            Plotly.d3.select(chartDiv).on('plotly_unhover', window.chartUnhoverHandler);
-        }} else {{
-            console.log('❌ Plotly.d3 is NOT available');
-        }}
+        }}, 50);
+        console.log('✅ Hover polling started');
     }}
     
     function updateChart() {{
