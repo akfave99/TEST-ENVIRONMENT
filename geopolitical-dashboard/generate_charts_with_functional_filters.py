@@ -488,23 +488,30 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         const filterSelects = document.querySelectorAll('.filter-select');
         filterSelects.forEach(select => {{
             const key = select.id.replace('{chart_id}_', '');
-            filters[key] = select.value;
+            // Skip the test_country filter - it's only for manual highlighting
+            if (key !== 'test_country') {{
+                filters[key] = select.value;
+            }}
         }});
         
         // Build the key from filter values
         const key = Object.values(filters).join('_').toLowerCase();
+        console.log('📊 updateChart called with key:', key);
+        console.log('📊 Available variations:', Object.keys(window.chartVariations));
         
         if (window.chartVariations[key]) {{
             const chartData = window.chartVariations[key];
+            console.log('📊 Chart data found, rendering...');
             Plotly.react('{chart_id}-chart', chartData.data, chartData.layout, {{responsive: true}});
             
             // Add hover event listeners after chart is rendered
             setTimeout(function() {{
                 attachChartHoverListeners();
             }}, 100);
+        }} else {{
+            console.log('❌ Chart variation not found for key:', key);
         }}
-
-    
+    }}
     window.testHighlightCountry = function() {{
         const testSelect = document.getElementById('{chart_id}_test_country');
         const country = testSelect.value;
