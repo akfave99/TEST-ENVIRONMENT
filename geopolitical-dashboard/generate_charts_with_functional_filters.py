@@ -377,12 +377,29 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
     function highlightCountryInChoropleth(country) {{
         const countryCode = getCountryCode(country);
         if (countryCode) {{
-            Plotly.restyle('choropleth-overlay', {{'marker.line.width': [countryCode === 'KAZ' ? 4 : 2, countryCode === 'UZB' ? 4 : 2, countryCode === 'TKM' ? 4 : 2, countryCode === 'AZE' ? 4 : 2, countryCode === 'GEO' ? 4 : 2]}});
+            // Get the original z values from the choropleth data
+            const originalZ = window.choroplethOriginalZ || [1000, 800, 600, 400, 200];
+            
+            // Create new z values with the hovered country highlighted (doubled)
+            const newZ = originalZ.map((val, idx) => {{
+                const codes = ['KAZ', 'UZB', 'TKM', 'AZE', 'GEO'];
+                return codes[idx] === countryCode ? val * 1.5 : val * 0.7;
+            }});
+            
+            // Update both color and border
+            Plotly.restyle('choropleth-overlay', {{
+                'z': [newZ],
+                'marker.line.width': [countryCode === 'KAZ' ? 4 : 2, countryCode === 'UZB' ? 4 : 2, countryCode === 'TKM' ? 4 : 2, countryCode === 'AZE' ? 4 : 2, countryCode === 'GEO' ? 4 : 2]
+            }});
         }}
     }}
     
     function resetChoroplethHighlight() {{
-        Plotly.restyle('choropleth-overlay', {{'marker.line.width': [2, 2, 2, 2, 2]}});
+        const originalZ = window.choroplethOriginalZ || [1000, 800, 600, 400, 200];
+        Plotly.restyle('choropleth-overlay', {{
+            'z': [originalZ],
+            'marker.line.width': [2, 2, 2, 2, 2]
+        }});
     }}
     
     function getCountryCode(country) {{
@@ -624,6 +641,15 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                 <div class="choropleth-container">
                     <div class="choropleth-title">Country Highlight (Hover over chart)</div>
                     {choropleth_html}
+                    <script>
+                        // Store the original Z values for hover highlighting
+                        setTimeout(function() {{
+                            const plot = document.getElementById('choropleth-overlay');
+                            if (plot && plot.data && plot.data[0]) {{
+                                window.choroplethOriginalZ = plot.data[0].z;
+                            }}
+                        }}, 100);
+                    </script>
                 </div>
                 <div class="main-chart">
                     <div id="{chart_id}-chart" style="width:100%;height:700px;"></div>
