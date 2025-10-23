@@ -245,11 +245,10 @@
         const chartDiv = document.getElementById('chart4-chart');
         console.log('Attaching hover listeners to chart...');
         
-        // Remove old listeners first
-        chartDiv.removeEventListener('plotly_hover', window.chartHoverHandler);
-        chartDiv.removeEventListener('plotly_unhover', window.chartUnhoverHandler);
+        // Try using Plotly's internal event system
+        // Plotly dispatches custom events on the chart div
         
-        // Create new handlers
+        // Create handlers
         window.chartHoverHandler = function(data) {
             console.log('✅ Hover event fired!', data);
             if (data.points && data.points[0].customdata) {
@@ -268,9 +267,27 @@
             resetChoroplethHighlight();
         };
         
-        // Attach listeners
+        // Try multiple event attachment methods
+        // Method 1: addEventListener (for standard DOM events)
         chartDiv.addEventListener('plotly_hover', window.chartHoverHandler);
         chartDiv.addEventListener('plotly_unhover', window.chartUnhoverHandler);
+        
+        // Method 2: Try using Plotly's d3 if available
+        if (typeof Plotly !== 'undefined' && Plotly.d3) {
+            console.log('Plotly.d3 is available, using it for event binding');
+            Plotly.d3.select(chartDiv).on('plotly_hover', window.chartHoverHandler);
+            Plotly.d3.select(chartDiv).on('plotly_unhover', window.chartUnhoverHandler);
+        }
+        
+        // Method 3: Attach to SVG hover events directly
+        setTimeout(function() {
+            const svg = chartDiv.querySelector('svg');
+            if (svg) {
+                console.log('Found SVG, attaching hover listeners to SVG elements');
+                const paths = svg.querySelectorAll('path[class*="country"], path[class*="geo"]');
+                console.log('Found', paths.length, 'path elements');
+            }
+        }, 200);
     }
     
     function updateChart() {
