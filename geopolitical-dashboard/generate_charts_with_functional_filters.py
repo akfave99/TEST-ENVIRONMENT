@@ -521,9 +521,10 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
 
     function highlightCountryInChoropleth(country) {{
         const countryCode = getCountryCode(country);
-        console.log('Hover detected - Country:', country, 'Code:', countryCode);
+        console.log('🎯 Hover detected - Country:', country, 'Code:', countryCode);
+        
         if (countryCode) {{
-            // Get the original z values
+            // Get the original z values for main countries
             const originalZ = window.choroplethOriginalZ || [120000000, 90000000, 45000000, 70000000, 30000000];
             const codes = ['KAZ', 'UZB', 'TKM', 'AZE', 'GEO'];
             
@@ -536,14 +537,16 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                 }}
             }});
             
-            console.log('Updating Z values:', newZ);
+            console.log('🎯 Updating Z values for trace 0 (main countries):', newZ);
             
-            // Update z values to change colors
+            // Update z values for trace 0 (main countries) to change colors
             Plotly.restyle('choropleth-overlay', {{
                 'z': [newZ]
             }}, 0);
+            
+            console.log('✅ Plotly.restyle called successfully');
         }} else {{
-            console.log('Country code not found for:', country);
+            console.log('❌ Country code not found for:', country);
         }}
     }}
     
@@ -789,10 +792,30 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                     <div class="choropleth-title">Country Highlight (Hover over chart)</div>
                     {choropleth_html}
                     <script>
-                        // Store the original Z values for hover highlighting
-                        // These are the actual defense spending values for each country
-                        window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
-                        console.log('Choropleth Z values initialized:', window.choroplethOriginalZ);
+                        // Initialize choropleth data after a short delay to ensure Plotly has rendered
+                        setTimeout(function() {{
+                            try {{
+                                const choroplethDiv = document.getElementById('choropleth-overlay');
+                                if (choroplethDiv && choroplethDiv.data && choroplethDiv.data.length > 0) {{
+                                    // Get the z values from the first trace (main countries)
+                                    const mainCountriesTrace = choroplethDiv.data[0];
+                                    if (mainCountriesTrace && mainCountriesTrace.z) {{
+                                        window.choroplethOriginalZ = mainCountriesTrace.z;
+                                        console.log('✅ Choropleth Z values captured from Plotly:', window.choroplethOriginalZ);
+                                    }} else {{
+                                        // Fallback to hardcoded values
+                                        window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
+                                        console.log('⚠️ Using fallback Z values:', window.choroplethOriginalZ);
+                                    }}
+                                }} else {{
+                                    console.log('❌ Choropleth div not found or not rendered yet');
+                                    window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
+                                }}
+                            }} catch (e) {{
+                                console.log('❌ Error initializing choropleth:', e.message);
+                                window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
+                            }}
+                        }}, 500);
                     </script>
                 </div>
                 <div class="main-chart">
