@@ -345,6 +345,38 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
     window.filterConfig = {json.dumps(filter_config)};
     window.chartId = '{chart_id}';
     
+    function attachChartHoverListeners() {{
+        const chartDiv = document.getElementById('{chart_id}-chart');
+        console.log('Attaching hover listeners to chart...');
+        
+        // Remove old listeners first
+        chartDiv.removeEventListener('plotly_hover', window.chartHoverHandler);
+        chartDiv.removeEventListener('plotly_unhover', window.chartUnhoverHandler);
+        
+        // Create new handlers
+        window.chartHoverHandler = function(data) {{
+            console.log('✅ Hover event fired!', data);
+            if (data.points && data.points[0].customdata) {{
+                let country = data.points[0].customdata;
+                // Handle both string and array customdata
+                if (Array.isArray(country)) {{
+                    country = country[0];
+                }}
+                console.log('✅ Country from customdata:', country);
+                highlightCountryInChoropleth(country);
+            }}
+        }};
+        
+        window.chartUnhoverHandler = function(data) {{
+            console.log('✅ Unhover event fired!');
+            resetChoroplethHighlight();
+        }};
+        
+        // Attach listeners
+        chartDiv.addEventListener('plotly_hover', window.chartHoverHandler);
+        chartDiv.addEventListener('plotly_unhover', window.chartUnhoverHandler);
+    }}
+    
     function updateChart() {{
         const filters = {{}};
         const filterSelects = document.querySelectorAll('.filter-select');
@@ -360,25 +392,10 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             const chartData = window.chartVariations[key];
             Plotly.react('{chart_id}-chart', chartData.data, chartData.layout, {{responsive: true}});
             
-            // Add hover event listener for choropleth sync
-            const chartDiv = document.getElementById('{chart_id}-chart');
-            chartDiv.addEventListener('plotly_hover', function(data) {{
-                console.log('✅ Hover event fired!', data);
-                if (data.points && data.points[0].customdata) {{
-                    let country = data.points[0].customdata;
-                    // Handle both string and array customdata
-                    if (Array.isArray(country)) {{
-                        country = country[0];
-                    }}
-                    console.log('✅ Country from customdata:', country);
-                    highlightCountryInChoropleth(country);
-                }}
-            }});
-            
-            chartDiv.addEventListener('plotly_unhover', function(data) {{
-                console.log('✅ Unhover event fired!');
-                resetChoroplethHighlight();
-            }});
+            // Add hover event listeners after chart is rendered
+            setTimeout(function() {{
+                attachChartHoverListeners();
+            }}, 100);
         }}
     }}
     
@@ -431,25 +448,10 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             const chartData = window.chartVariations[firstKey];
             Plotly.newPlot('{chart_id}-chart', chartData.data, chartData.layout, {{responsive: true}});
             
-            // Add hover event listeners
-            const chartDiv = document.getElementById('{chart_id}-chart');
-            chartDiv.addEventListener('plotly_hover', function(data) {{
-                console.log('✅ Hover event fired!', data);
-                if (data.points && data.points[0].customdata) {{
-                    let country = data.points[0].customdata;
-                    // Handle both string and array customdata
-                    if (Array.isArray(country)) {{
-                        country = country[0];
-                    }}
-                    console.log('✅ Country from customdata:', country);
-                    highlightCountryInChoropleth(country);
-                }}
-            }});
-            
-            chartDiv.addEventListener('plotly_unhover', function(data) {{
-                console.log('✅ Unhover event fired!');
-                resetChoroplethHighlight();
-            }});
+            // Add hover event listeners after chart is rendered
+            setTimeout(function() {{
+                attachChartHoverListeners();
+            }}, 100);
         }}
     }});
     </script>
