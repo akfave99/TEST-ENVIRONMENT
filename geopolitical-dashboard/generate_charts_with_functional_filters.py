@@ -649,7 +649,9 @@ def main():
     print("🧪 GENERATING CHARTS WITH FUNCTIONAL FILTERS & HOVER SYNC")
     print("=" * 70)
     
-    output_dir = "../docs"
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(os.path.dirname(script_dir), "docs")
     os.makedirs(output_dir, exist_ok=True)
     
     # Chart 4 - Multi-Country Radar
