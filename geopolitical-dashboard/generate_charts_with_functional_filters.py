@@ -21,19 +21,53 @@ COUNTRIES_ISO = {
 }
 
 def create_choropleth_html():
-    """Create a choropleth map HTML - extract just the div and script."""
+    """Create a choropleth map HTML with main countries and neighboring countries."""
     import re
     df = get_data()
     
-    fig = go.Figure(data=go.Choropleth(
-        locations=[COUNTRIES_ISO[c] for c in df['Country']],
-        z=df['Avg_Spend'],
-        text=df['Country'],
+    # Main countries (5)
+    main_countries = ['Kazakhstan', 'Uzbekistan', 'Turkmenistan', 'Azerbaijan', 'Georgia']
+    main_locations = [COUNTRIES_ISO[c] for c in main_countries]
+    main_z = [120000000, 90000000, 45000000, 70000000, 30000000]
+    
+    # Neighboring countries (neutral gray styling)
+    neighboring_countries = {
+        'RUS': 'Russia',
+        'CHN': 'China',
+        'AFG': 'Afghanistan',
+        'IRN': 'Iran',
+        'TUR': 'Turkey',
+        'ARM': 'Armenia',
+        'KGZ': 'Kyrgyzstan',
+        'TJK': 'Tajikistan'
+    }
+    
+    fig = go.Figure()
+    
+    # Add main countries trace (with color)
+    fig.add_trace(go.Choropleth(
+        locations=main_locations,
+        z=main_z,
+        text=main_countries,
         colorscale='Blues',
         showscale=False,
         hovertemplate='<b>%{text}</b><br>Spending: $%{z:,.0f}<extra></extra>',
         marker_line_color='white',
-        marker_line_width=2
+        marker_line_width=2,
+        name='Main Countries'
+    ))
+    
+    # Add neighboring countries trace (neutral gray)
+    fig.add_trace(go.Choropleth(
+        locations=list(neighboring_countries.keys()),
+        z=[50000000] * len(neighboring_countries),  # Neutral value
+        text=list(neighboring_countries.values()),
+        colorscale=[[0, 'rgb(220, 220, 220)'], [1, 'rgb(200, 200, 200)']],
+        showscale=False,
+        hovertemplate='<b>%{text}</b> (Neighboring)<extra></extra>',
+        marker_line_color='white',
+        marker_line_width=1,
+        name='Neighboring Countries'
     ))
     
     fig.update_layout(
@@ -50,7 +84,8 @@ def create_choropleth_html():
             projection_scale=3
         ),
         height=300,
-        margin=dict(l=0, r=0, t=0, b=0)
+        margin=dict(l=0, r=0, t=0, b=0),
+        showlegend=False
     )
     
     html_full = fig.to_html(include_plotlyjs=False, div_id="choropleth-overlay")
@@ -336,6 +371,21 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         for option in filter_options:
             filters_html += f'<option value="{option}">{option}</option>'
         filters_html += '</select></div>'
+    
+    # Add test country highlight filter (for debugging)
+    filters_html += f'''
+    <div class="filter-group">
+        <label>Test Country Highlight:</label>
+        <select class="filter-select" id="{chart_id}_test_country" onchange="testHighlightCountry()">
+            <option value="">-- Select a country --</option>
+            <option value="Kazakhstan">Kazakhstan</option>
+            <option value="Uzbekistan">Uzbekistan</option>
+            <option value="Turkmenistan">Turkmenistan</option>
+            <option value="Azerbaijan">Azerbaijan</option>
+            <option value="Georgia">Georgia</option>
+        </select>
+    </div>
+    '''
     filters_html += '</div>'
     
     # Create JavaScript for functional filters and hover sync
@@ -453,8 +503,22 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                 attachChartHoverListeners();
             }}, 100);
         }}
-    }}
+
     
+    function testHighlightCountry() {{
+        const testSelect = document.getElementById('{chart_id}_test_country');
+        const country = testSelect.value;
+        console.log('🧪 Test highlight triggered for country:', country);
+        
+        if (country) {{
+            console.log('🧪 Calling highlightCountryInChoropleth with:', country);
+            highlightCountryInChoropleth(country);
+        }} else {{
+            console.log('🧪 Resetting choropleth colors');
+            resetChoroplethHighlight();
+        }}
+    }}
+
     function highlightCountryInChoropleth(country) {{
         const countryCode = getCountryCode(country);
         console.log('Hover detected - Country:', country, 'Code:', countryCode);
