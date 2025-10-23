@@ -183,7 +183,17 @@ def create_radar_variations():
                     )
                 ),
                 showlegend=True,
-                height=700
+                height=700,
+                legend=dict(
+                    x=1.05,
+                    y=1,
+                    xanchor='left',
+                    yanchor='top',
+                    bgcolor='rgba(255, 255, 255, 0.8)',
+                    bordercolor='rgba(0, 0, 0, 0.2)',
+                    borderwidth=1
+                ),
+                margin=dict(r=200)  # Add right margin for legend
             )
             
             key = f"{metric}_{num_countries}countries"
