@@ -505,10 +505,12 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         }}
 
     
-    function testHighlightCountry() {{
+    window.testHighlightCountry = function() {{
         const testSelect = document.getElementById('{chart_id}_test_country');
         const country = testSelect.value;
         console.log('🧪 Test highlight triggered for country:', country);
+        console.log('🧪 testSelect element:', testSelect);
+        console.log('🧪 highlightCountryInChoropleth function exists:', typeof highlightCountryInChoropleth);
         
         if (country) {{
             console.log('🧪 Calling highlightCountryInChoropleth with:', country);
@@ -517,9 +519,9 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             console.log('🧪 Resetting choropleth colors');
             resetChoroplethHighlight();
         }}
-    }}
+    }};
 
-    function highlightCountryInChoropleth(country) {{
+    window.highlightCountryInChoropleth = function(country) {{
         const countryCode = getCountryCode(country);
         console.log('🎯 Hover detected - Country:', country, 'Code:', countryCode);
         
@@ -548,9 +550,9 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         }} else {{
             console.log('❌ Country code not found for:', country);
         }}
-    }}
+    }};
     
-    function resetChoroplethHighlight() {{
+    window.resetChoroplethHighlight = function() {{
         console.log('Resetting choropleth colors');
         // Reset to original z values
         const originalZ = window.choroplethOriginalZ || [120000000, 90000000, 45000000, 70000000, 30000000];
@@ -559,10 +561,10 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         }}, 0);
     }}
     
-    function getCountryCode(country) {{
+    window.getCountryCode = function(country) {{
         const codes = {{'Kazakhstan': 'KAZ', 'Uzbekistan': 'UZB', 'Turkmenistan': 'TKM', 'Azerbaijan': 'AZE', 'Georgia': 'GEO'}};
         return codes[country];
-    }}
+    }};
     
     // Initialize with first variation
     window.addEventListener('load', function() {{
