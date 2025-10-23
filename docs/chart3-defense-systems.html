@@ -262,43 +262,67 @@
         
         // Poll the chart's internal hover state using Plotly's internal data
         let lastHoveredCountry = null;
+        let debugLogged = false;
         window.hoverPollingInterval = setInterval(function() {
             try {
-                // Access Plotly's internal hover data
-                const plotlyData = chartDiv.data;
-                const plotlyLayout = chartDiv.layout;
-                
                 // Check if there's hover data in the plot
                 if (chartDiv._hoverdata && chartDiv._hoverdata.length > 0) {
                     const hoverPoint = chartDiv._hoverdata[0];
-                    console.log('📍 Hover data detected:', hoverPoint);
                     
+                    // Log available properties once for debugging
+                    if (!debugLogged) {
+                        console.log('�� Hover data detected. Available properties:', Object.keys(hoverPoint));
+                        console.log('📍 Full hover point:', hoverPoint);
+                        debugLogged = true;
+                    }
+                    
+                    // Try to get country from customdata
+                    let country = null;
+                    
+                    // Method 1: Direct customdata
                     if (hoverPoint.customdata) {
-                        let country = hoverPoint.customdata;
+                        country = hoverPoint.customdata;
                         if (Array.isArray(country)) {
                             country = country[0];
                         }
-                        console.log('✅ Country from hover data:', country);
-                        
-                        if (country && country !== lastHoveredCountry) {
-                            console.log('✅ Country changed from', lastHoveredCountry, 'to', country);
-                            if (lastHoveredCountry !== null) {
-                                resetChoroplethHighlight();
-                            }
-                            lastHoveredCountry = country;
-                            highlightCountryInChoropleth(country);
+                        console.log('✅ Country from customdata:', country);
+                    }
+                    
+                    // Method 2: If customdata not available, try to get from fullData
+                    if (!country && hoverPoint.fullData && hoverPoint.fullData.customdata) {
+                        const customdataArray = hoverPoint.fullData.customdata;
+                        const pointIndex = hoverPoint.pointIndex;
+                        if (pointIndex !== undefined && customdataArray[pointIndex]) {
+                            country = customdataArray[pointIndex];
+                            console.log('✅ Country from fullData.customdata[' + pointIndex + ']:', country);
                         }
+                    }
+                    
+                    // Method 3: If still no country, try to get from fullData.name
+                    if (!country && hoverPoint.fullData && hoverPoint.fullData.name) {
+                        country = hoverPoint.fullData.name;
+                        console.log('✅ Country from fullData.name:', country);
+                    }
+                    
+                    if (country && country !== lastHoveredCountry) {
+                        console.log('✅ Country changed from', lastHoveredCountry, 'to', country);
+                        if (lastHoveredCountry !== null) {
+                            resetChoroplethHighlight();
+                        }
+                        lastHoveredCountry = country;
+                        highlightCountryInChoropleth(country);
                     }
                 } else if (lastHoveredCountry !== null) {
                     console.log('✅ Hover ended, resetting all countries');
                     lastHoveredCountry = null;
                     resetChoroplethHighlight();
+                    debugLogged = false;
                 }
             } catch (e) {
                 console.log('❌ Error in polling:', e.message);
             }
         }, 50);
-        console.log('✅ Hover polling started (using Plotly internal state)');
+        console.log('✅ Hover polling started (using Plotly internal state with fallbacks)');
     }
     
     function updateChart() {
