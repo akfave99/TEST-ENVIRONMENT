@@ -361,21 +361,22 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             Plotly.react('{chart_id}-chart', chartData.data, chartData.layout, {{responsive: true}});
             
             // Add hover event listener for choropleth sync
-            document.getElementById('{chart_id}-chart').addEventListener('plotly_hover', function(data) {{
-                console.log('Hover event fired!', data);
+            const chartDiv = document.getElementById('{chart_id}-chart');
+            chartDiv.addEventListener('plotly_hover', function(data) {{
+                console.log('✅ Hover event fired!', data);
                 if (data.points && data.points[0].customdata) {{
                     let country = data.points[0].customdata;
                     // Handle both string and array customdata
                     if (Array.isArray(country)) {{
                         country = country[0];
                     }}
-                    console.log('Country from customdata:', country);
+                    console.log('✅ Country from customdata:', country);
                     highlightCountryInChoropleth(country);
                 }}
             }});
             
-            document.getElementById('{chart_id}-chart').addEventListener('plotly_unhover', function(data) {{
-                console.log('Unhover event fired!');
+            chartDiv.addEventListener('plotly_unhover', function(data) {{
+                console.log('✅ Unhover event fired!');
                 resetChoroplethHighlight();
             }});
         }}
@@ -431,21 +432,22 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             Plotly.newPlot('{chart_id}-chart', chartData.data, chartData.layout, {{responsive: true}});
             
             // Add hover event listeners
-            document.getElementById('{chart_id}-chart').addEventListener('plotly_hover', function(data) {{
-                console.log('Hover event fired!', data);
+            const chartDiv = document.getElementById('{chart_id}-chart');
+            chartDiv.addEventListener('plotly_hover', function(data) {{
+                console.log('✅ Hover event fired!', data);
                 if (data.points && data.points[0].customdata) {{
                     let country = data.points[0].customdata;
                     // Handle both string and array customdata
                     if (Array.isArray(country)) {{
                         country = country[0];
                     }}
-                    console.log('Country from customdata:', country);
+                    console.log('✅ Country from customdata:', country);
                     highlightCountryInChoropleth(country);
                 }}
             }});
             
-            document.getElementById('{chart_id}-chart').addEventListener('plotly_unhover', function(data) {{
-                console.log('Unhover event fired!');
+            chartDiv.addEventListener('plotly_unhover', function(data) {{
+                console.log('✅ Unhover event fired!');
                 resetChoroplethHighlight();
             }});
         }}
