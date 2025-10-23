@@ -402,9 +402,8 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             
             // Update marker colors and border width
             Plotly.restyle('choropleth-overlay', {{
-                'marker.color': [colors],
-                'marker.line.width': [countryCode === 'KAZ' ? 4 : 2, countryCode === 'UZB' ? 4 : 2, countryCode === 'TKM' ? 4 : 2, countryCode === 'AZE' ? 4 : 2, countryCode === 'GEO' ? 4 : 2]
-            }});
+                'marker.color': [colors]
+            }}, 0);
         }} else {{
             console.log('Country code not found for:', country);
         }}
@@ -414,9 +413,8 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         console.log('Resetting choropleth colors');
         // Reset to original blue gradient
         Plotly.restyle('choropleth-overlay', {{
-            'marker.color': [null],  // Reset to default colorscale
-            'marker.line.width': [2, 2, 2, 2, 2]
-        }});
+            'marker.color': [null]  // Reset to default colorscale
+        }}, 0);
     }}
     
     function getCountryCode(country) {{
