@@ -21,7 +21,8 @@ COUNTRIES_ISO = {
 }
 
 def create_choropleth_html():
-    """Create a choropleth map HTML."""
+    """Create a choropleth map HTML - extract just the div and script."""
+    import re
     df = get_data()
     
     fig = go.Figure(data=go.Choropleth(
@@ -52,7 +53,14 @@ def create_choropleth_html():
         margin=dict(l=0, r=0, t=0, b=0)
     )
     
-    return fig.to_html(include_plotlyjs=False, div_id="choropleth-overlay")
+    html_full = fig.to_html(include_plotlyjs=False, div_id="choropleth-overlay")
+    
+    # Extract just the body content, removing the outer html/head/body tags
+    body_match = re.search(r'<body>(.*?)</body>', html_full, re.DOTALL)
+    if body_match:
+        return body_match.group(1).strip()
+    else:
+        return html_full
 
 def create_radar_variations():
     """Create multiple radar chart variations."""
