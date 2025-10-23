@@ -107,7 +107,7 @@ def create_radar_variations():
                     name=country,
                     line=dict(width=2),
                     opacity=0.7,
-                    customdata=[[country]] * len(values_closed),
+                    customdata=[country] * len(values_closed),
                     hovertemplate="<b>%{fullData.name}</b><br>" +
                                   "Supplier: %{theta}<br>" +
                                   "Level: %{r:.1f}<br>" +
@@ -363,7 +363,11 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             // Add hover event listener for choropleth sync
             document.getElementById('{chart_id}-chart').on('plotly_hover', function(data) {{
                 if (data.points && data.points[0].customdata) {{
-                    const country = data.points[0].customdata;
+                    let country = data.points[0].customdata;
+                    // Handle both string and array customdata
+                    if (Array.isArray(country)) {{
+                        country = country[0];
+                    }}
                     highlightCountryInChoropleth(country);
                 }}
             }});
@@ -376,9 +380,11 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
     
     function highlightCountryInChoropleth(country) {{
         const countryCode = getCountryCode(country);
+        console.log('Hover detected - Country:', country, 'Code:', countryCode);
         if (countryCode) {{
             // Get the original z values from the choropleth data
             const originalZ = window.choroplethOriginalZ || [1000, 800, 600, 400, 200];
+            console.log('Original Z values:', originalZ);
             
             // Create new z values with the hovered country highlighted (doubled)
             const newZ = originalZ.map((val, idx) => {{
@@ -386,11 +392,15 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                 return codes[idx] === countryCode ? val * 1.5 : val * 0.7;
             }});
             
+            console.log('New Z values:', newZ);
+            
             // Update both color and border
             Plotly.restyle('choropleth-overlay', {{
                 'z': [newZ],
                 'marker.line.width': [countryCode === 'KAZ' ? 4 : 2, countryCode === 'UZB' ? 4 : 2, countryCode === 'TKM' ? 4 : 2, countryCode === 'AZE' ? 4 : 2, countryCode === 'GEO' ? 4 : 2]
             }});
+        }} else {{
+            console.log('Country code not found for:', country);
         }}
     }}
     
@@ -417,7 +427,11 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             // Add hover event listeners
             document.getElementById('{chart_id}-chart').on('plotly_hover', function(data) {{
                 if (data.points && data.points[0].customdata) {{
-                    const country = data.points[0].customdata;
+                    let country = data.points[0].customdata;
+                    // Handle both string and array customdata
+                    if (Array.isArray(country)) {{
+                        country = country[0];
+                    }}
                     highlightCountryInChoropleth(country);
                 }}
             }});
