@@ -493,7 +493,7 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{chart_title} - TEST ENVIRONMENT</title>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
         <style>
             * {{
                 margin: 0;
