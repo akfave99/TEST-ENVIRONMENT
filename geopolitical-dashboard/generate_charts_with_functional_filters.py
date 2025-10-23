@@ -382,21 +382,24 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         const countryCode = getCountryCode(country);
         console.log('Hover detected - Country:', country, 'Code:', countryCode);
         if (countryCode) {{
-            // Get the original z values from the choropleth data
-            const originalZ = window.choroplethOriginalZ || [1000, 800, 600, 400, 200];
-            console.log('Original Z values:', originalZ);
+            // Create color array - highlight hovered country with darker blue, dim others
+            const colors = ['rgb(8,48,107)', 'rgb(8,48,107)', 'rgb(8,48,107)', 'rgb(8,48,107)', 'rgb(8,48,107)'];
+            const codes = ['KAZ', 'UZB', 'TKM', 'AZE', 'GEO'];
             
-            // Create new z values with the hovered country highlighted (doubled)
-            const newZ = originalZ.map((val, idx) => {{
-                const codes = ['KAZ', 'UZB', 'TKM', 'AZE', 'GEO'];
-                return codes[idx] === countryCode ? val * 1.5 : val * 0.7;
-            }});
+            // Set hovered country to bright blue, others to light gray
+            for (let i = 0; i < codes.length; i++) {{
+                if (codes[i] === countryCode) {{
+                    colors[i] = 'rgb(33,113,181)';  // Bright blue for hovered
+                }} else {{
+                    colors[i] = 'rgb(222,235,247)';  // Light blue for others
+                }}
+            }}
             
-            console.log('New Z values:', newZ);
+            console.log('Updating colors:', colors);
             
-            // Update both color and border
+            // Update marker colors and border width
             Plotly.restyle('choropleth-overlay', {{
-                'z': [newZ],
+                'marker.color': [colors],
                 'marker.line.width': [countryCode === 'KAZ' ? 4 : 2, countryCode === 'UZB' ? 4 : 2, countryCode === 'TKM' ? 4 : 2, countryCode === 'AZE' ? 4 : 2, countryCode === 'GEO' ? 4 : 2]
             }});
         }} else {{
@@ -405,9 +408,10 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
     }}
     
     function resetChoroplethHighlight() {{
-        const originalZ = window.choroplethOriginalZ || [1000, 800, 600, 400, 200];
+        console.log('Resetting choropleth colors');
+        // Reset to original blue gradient
         Plotly.restyle('choropleth-overlay', {{
-            'z': [originalZ],
+            'marker.color': [null],  // Reset to default colorscale
             'marker.line.width': [2, 2, 2, 2, 2]
         }});
     }}
@@ -657,12 +661,9 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                     {choropleth_html}
                     <script>
                         // Store the original Z values for hover highlighting
-                        setTimeout(function() {{
-                            const plot = document.getElementById('choropleth-overlay');
-                            if (plot && plot.data && plot.data[0]) {{
-                                window.choroplethOriginalZ = plot.data[0].z;
-                            }}
-                        }}, 100);
+                        // These are the actual defense spending values for each country
+                        window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
+                        console.log('Choropleth Z values initialized:', window.choroplethOriginalZ);
                     </script>
                 </div>
                 <div class="main-chart">
