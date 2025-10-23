@@ -368,31 +368,34 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
             resetChoroplethHighlight();
         }};
         
-        // Poll the chart's internal hover state
+        // Poll the chart's internal hover state using Plotly's internal data
         let lastHoveredCountry = null;
         window.hoverPollingInterval = setInterval(function() {{
             try {{
-                const hoverText = chartDiv.querySelector('.hoverlayer text');
-                if (hoverText && hoverText.textContent) {{
-                    const hoverContent = hoverText.textContent;
-                    console.log('📍 Hover text detected:', hoverContent);
-                    let country = null;
-                    const countryNames = ['Kazakhstan', 'Uzbekistan', 'Turkmenistan', 'Azerbaijan', 'Georgia'];
-                    for (let c of countryNames) {{
-                        if (hoverContent.includes(c)) {{
-                            country = c;
-                            break;
+                // Access Plotly's internal hover data
+                const plotlyData = chartDiv.data;
+                const plotlyLayout = chartDiv.layout;
+                
+                // Check if there's hover data in the plot
+                if (chartDiv._hoverdata && chartDiv._hoverdata.length > 0) {{
+                    const hoverPoint = chartDiv._hoverdata[0];
+                    console.log('📍 Hover data detected:', hoverPoint);
+                    
+                    if (hoverPoint.customdata) {{
+                        let country = hoverPoint.customdata;
+                        if (Array.isArray(country)) {{
+                            country = country[0];
                         }}
-                    }}
-                    if (country && country !== lastHoveredCountry) {{
-                        console.log('✅ Country changed from', lastHoveredCountry, 'to', country);
-                        // Reset previous country first
-                        if (lastHoveredCountry !== null) {{
-                            resetChoroplethHighlight();
+                        console.log('✅ Country from hover data:', country);
+                        
+                        if (country && country !== lastHoveredCountry) {{
+                            console.log('✅ Country changed from', lastHoveredCountry, 'to', country);
+                            if (lastHoveredCountry !== null) {{
+                                resetChoroplethHighlight();
+                            }}
+                            lastHoveredCountry = country;
+                            highlightCountryInChoropleth(country);
                         }}
-                        // Then highlight new country
-                        lastHoveredCountry = country;
-                        highlightCountryInChoropleth(country);
                     }}
                 }} else if (lastHoveredCountry !== null) {{
                     console.log('✅ Hover ended, resetting all countries');
@@ -400,10 +403,10 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                     resetChoroplethHighlight();
                 }}
             }} catch (e) {{
-                // Silently ignore errors
+                console.log('❌ Error in polling:', e.message);
             }}
         }}, 50);
-        console.log('✅ Hover polling started');
+        console.log('✅ Hover polling started (using Plotly internal state)');
     }}
     
     function updateChart() {{
