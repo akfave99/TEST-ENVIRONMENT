@@ -243,10 +243,7 @@
     
     function attachChartHoverListeners() {
         const chartDiv = document.getElementById('chart5-chart');
-        console.log('Attaching hover listeners to chart...');
-        
-        // Try using Plotly's internal event system
-        // Plotly dispatches custom events on the chart div
+        console.log('🔍 Attaching hover listeners to chart...');
         
         // Create handlers
         window.chartHoverHandler = function(data) {
@@ -267,27 +264,27 @@
             resetChoroplethHighlight();
         };
         
-        // Try multiple event attachment methods
-        // Method 1: addEventListener (for standard DOM events)
+        // Add a catch-all listener to see what events are being fired
         chartDiv.addEventListener('plotly_hover', window.chartHoverHandler);
         chartDiv.addEventListener('plotly_unhover', window.chartUnhoverHandler);
         
-        // Method 2: Try using Plotly's d3 if available
+        // Debug: Log all events on the chart div
+        const originalAddEventListener = chartDiv.addEventListener;
+        chartDiv.addEventListener = function(type, listener, options) {
+            if (type.includes('plotly')) {
+                console.log('📡 Event listener added for:', type);
+            }
+            return originalAddEventListener.call(this, type, listener, options);
+        };
+        
+        // Try using Plotly's d3 if available
         if (typeof Plotly !== 'undefined' && Plotly.d3) {
-            console.log('Plotly.d3 is available, using it for event binding');
+            console.log('✅ Plotly.d3 is available');
             Plotly.d3.select(chartDiv).on('plotly_hover', window.chartHoverHandler);
             Plotly.d3.select(chartDiv).on('plotly_unhover', window.chartUnhoverHandler);
+        } else {
+            console.log('❌ Plotly.d3 is NOT available');
         }
-        
-        // Method 3: Attach to SVG hover events directly
-        setTimeout(function() {
-            const svg = chartDiv.querySelector('svg');
-            if (svg) {
-                console.log('Found SVG, attaching hover listeners to SVG elements');
-                const paths = svg.querySelectorAll('path[class*="country"], path[class*="geo"]');
-                console.log('Found', paths.length, 'path elements');
-            }
-        }, 200);
     }
     
     function updateChart() {
