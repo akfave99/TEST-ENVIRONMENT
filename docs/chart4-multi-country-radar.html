@@ -281,12 +281,17 @@
                         }
                     }
                     if (country && country !== lastHoveredCountry) {
-                        console.log('✅ Country detected:', country);
+                        console.log('✅ Country changed from', lastHoveredCountry, 'to', country);
+                        // Reset previous country first
+                        if (lastHoveredCountry !== null) {
+                            resetChoroplethHighlight();
+                        }
+                        // Then highlight new country
                         lastHoveredCountry = country;
                         highlightCountryInChoropleth(country);
                     }
                 } else if (lastHoveredCountry !== null) {
-                    console.log('✅ Hover ended');
+                    console.log('✅ Hover ended, resetting all countries');
                     lastHoveredCountry = null;
                     resetChoroplethHighlight();
                 }
