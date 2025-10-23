@@ -28,7 +28,7 @@ def create_choropleth_html():
     # Main countries (5)
     main_countries = ['Kazakhstan', 'Uzbekistan', 'Turkmenistan', 'Azerbaijan', 'Georgia']
     main_locations = [COUNTRIES_ISO[c] for c in main_countries]
-    main_z = [120000000, 90000000, 45000000, 70000000, 30000000]
+    main_z = [100000000, 100000000, 100000000, 100000000, 100000000]  # Consistent baseline for all 5 countries
     
     # Neighboring countries (neutral gray styling) - expanded for geographic context
     neighboring_countries = {
@@ -568,15 +568,15 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
         
         if (countryCode) {{
             // Get the original z values for main countries
-            const originalZ = window.choroplethOriginalZ || [120000000, 90000000, 45000000, 70000000, 30000000];
+            const originalZ = window.choroplethOriginalZ || [100000000, 100000000, 100000000, 100000000, 100000000];
             const codes = ['KAZ', 'UZB', 'TKM', 'AZE', 'GEO'];
             
-            // Create new z values - brighten hovered country, dim others
+            // Create new z values - brighten hovered country, keep others at baseline
             const newZ = originalZ.map((val, idx) => {{
                 if (codes[idx] === countryCode) {{
-                    return val * 1.5;  // Brighten hovered country
+                    return 150000000;  // Bright blue for hovered country
                 }} else {{
-                    return val * 0.5;  // Dim other countries
+                    return 100000000;  // Light blue for other main countries
                 }}
             }});
             
@@ -596,7 +596,7 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
     window.resetChoroplethHighlight = function() {{
         console.log('Resetting choropleth colors');
         // Reset to original z values
-        const originalZ = window.choroplethOriginalZ || [120000000, 90000000, 45000000, 70000000, 30000000];
+        const originalZ = window.choroplethOriginalZ || [100000000, 100000000, 100000000, 100000000, 100000000];
         Plotly.restyle('choropleth-overlay', {{
             'z': [originalZ]
         }}, 0);
@@ -847,16 +847,16 @@ def create_page_with_functional_filters(chart_title, chart_id, variations_dict, 
                                         console.log('✅ Choropleth Z values captured from Plotly:', window.choroplethOriginalZ);
                                     }} else {{
                                         // Fallback to hardcoded values
-                                        window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
+                                        window.choroplethOriginalZ = [100000000, 100000000, 100000000, 100000000, 100000000];
                                         console.log('⚠️ Using fallback Z values:', window.choroplethOriginalZ);
                                     }}
                                 }} else {{
                                     console.log('❌ Choropleth div not found or not rendered yet');
-                                    window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
+                                    window.choroplethOriginalZ = [100000000, 100000000, 100000000, 100000000, 100000000];
                                 }}
                             }} catch (e) {{
                                 console.log('❌ Error initializing choropleth:', e.message);
-                                window.choroplethOriginalZ = [120000000, 90000000, 45000000, 70000000, 30000000];
+                                window.choroplethOriginalZ = [100000000, 100000000, 100000000, 100000000, 100000000];
                             }}
                         }}, 500);
                     </script>
